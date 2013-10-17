@@ -1,0 +1,22 @@
+<!-- permanent redirect to heroku web server from joogaia-->
+<!DOCTYPE HTML><html lang="en"><head><meta charset="UTF-8"/>
+</head><body>
+<div class="container">
+  <h1>Heroku</h1>
+  <pre class="prettyprint linenums" id="snippet-heroku"></pre>
+</div>
+<link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css" rel="stylesheet" media="screen"/>
+<link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap-responsive.css" rel="stylesheet" media="screen"/>
+<link href="http://getbootstrap.com/2.3.2/assets/js/google-code-prettify/prettify.css" rel="stylesheet" media="screen"/>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://getbootstrap.com/2.3.2/assets/js/google-code-prettify/prettify.js"></script>
+<script type="text/javascript" id="heroku">
+</script>
+<script id="control">
+$(function() { window.prettyPrint && prettyPrint(); });
+$('script[id]:not([id="control"])').each(function () {
+  $('#snippet-' + $(this).attr('id')).append($(this).text());
+});
+//$("#a").parent().append(phonelist(a));
+</script>
+</body></html>

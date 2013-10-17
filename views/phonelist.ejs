@@ -1,0 +1,50 @@
+<!-- permanent redirect to heroku web server from joogaia-->
+<!DOCTYPE HTML><html lang="en"><head><meta charset="UTF-8"/>
+</head><body>
+<div class="container">
+  <h1>Phone list</h1>
+  <p><code id="a">phonelist(a)</code>: <p>
+  <p><code id="b">phonelist(b)</code>: <p>
+  <pre class="prettyprint linenums" id="snippet-phonebook"></pre>
+</div>
+<link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css" rel="stylesheet" media="screen"/>
+<link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap-responsive.css" rel="stylesheet" media="screen"/>
+<link href="http://getbootstrap.com/2.3.2/assets/js/google-code-prettify/prettify.css" rel="stylesheet" media="screen"/>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://getbootstrap.com/2.3.2/assets/js/google-code-prettify/prettify.js"></script>
+<script type="text/javascript" id="phonebook">
+// bad list
+var a = [911,
+  97625999,
+  91125426
+];
+// good list
+var b = [113,
+  12340,
+  123440,
+  12345,
+  98346
+];
+
+function phonelist(a/*list <~10000*/) {
+  dance: for (var i = 0, brk; i < a.length - 1; i++) {
+    for (var j = 1; j < a.length; j++) {
+      // avoid compare with the same index in the array
+      // we use regex here, still optimal so such solution in terms of speed
+      if (i != j) brk = new RegExp("^" + a[i], "m").test(String(a[j]));
+      // break everything if we prefix matched
+      if (brk) break dance;
+    }
+  }
+  return (brk) ? 'NO' : 'YES';
+}
+</script>
+<script id="control">
+$(function() { window.prettyPrint && prettyPrint(); });
+$('script[id]:not([id="control"])').each(function () {
+  $('#snippet-' + $(this).attr('id')).append($(this).text());
+});
+$("#a").parent().append(phonelist(a));
+$("#b").parent().append(phonelist(b));
+</script>
+</body></html>
