@@ -2,7 +2,68 @@
 <!DOCTYPE HTML><html lang="en"><head><meta charset="UTF-8"/>
 </head><body>
 <div class="container">
-  <h1>Heroku</h1>
+<h1>Sudoku</h1>
+<p>Brainstorming</p>
+<p>
+1. rotate 4<br/>
+<ul>
+<li>insert to array1, compare</li>
+<li>new array2 over inputed, <br/>
+  take symbols to form column array<br/>
+  compare</li>
+<li>array1 reverse, compare</li>
+<li>array2 reverse, compare</li>
+</ul>
+</p>
+<p>
+2. columns in segment 6x3=18
+<ul>
+<li>iterate over every 3 row segment up to 3:<br/>
+  shuffle (6), compare every shuffle</li>
+</ul>
+</p>
+<p>3. rows in segment 6x3=18
+<ul>
+<li>iterate over every 3 column segment up to 3:<br/>
+  shuffle (6), compare every shuffle</li>
+</ul>
+</p>
+<p>
+4. row or column 6x2=12
+<ul>
+<li>iterate over group of 3 columns:
+  shuffle (6), compare every shuffle</li>
+<li>iterate over group of 3 rows:
+  shuffle (6), compare every shuffle</li>
+</ul>
+</p>
+<p>5. ?</p>
+<pre>
+963 174 258
+178 325 649
+254 689 731
+
+821 437 596
+496 852 317
+735 961 824
+
+589 713 462
+317 246 985
+642 598 173
+
+060 104 050
+200 000 001
+008 305 600
+
+800 407 006
+006 000 300
+700 901 004
+
+500 000 002
+040 508 070
+007 206 900
+		</pre>
+  </p>
   <pre class="prettyprint linenums" id="snippet-heroku"></pre>
 </div>
 <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css" rel="stylesheet" media="screen"/>
