@@ -14,8 +14,8 @@ app.listen(port, function() {
   console.log("Listening on " + port);
 });
 
-app.get('/heroku', function(request, response) {
-  response.render('heroku');
+app.get('/sudoku', function(request, response) {
+  response.render('sudoku');
 });
 
 app.get('/phonelist', function(request, response) {
