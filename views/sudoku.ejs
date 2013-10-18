@@ -3,19 +3,16 @@
 </head><body>
 <div class="container">
 <h1>Sudoku</h1>
-<p>Brainstorming</p>
+<p>1. Rotate:</p>
 <p>
-1. rotate 4<br/>
-<ul>
-<li>insert to array1, compare</li>
-<li>new array2 over inputed, <br/>
-  take symbols to form column array<br/>
-  compare</li>
-<li>array1 reverse, compare</li>
-<li>array2 reverse, compare</li>
-</ul>
+<span>1.1</span> original: <code>compare(rowstoday, rowslast)</code><br/>
+<span>1.2</span> clockwise 1: <code>compare(columnstoday_reversed, columnslast)</code><br/>
+<span>1.3</span> clockwise 2: <code>compare(rowstoday_reversed, rowslast)</code><br/>
+<span>1.4</span> clockwise 3: <code>compare(columnstoday, columnslast)</code>
 </p>
+<pre class="prettyprint linenums" id="snippet-heroku-rotate"></pre>
 <p>
+<p>Brainstorming</p>
 2. columns in segment 6x3=18
 <ul>
 <li>iterate over every 3 row segment up to 3:<br/>
@@ -38,7 +35,10 @@
 </ul>
 </p>
 <p>5. ?</p>
+
+<p>Sudoku preview sketch</p>
 <pre>
+last week:
 963 174 258
 178 325 649
 254 689 731
@@ -51,6 +51,7 @@
 317 246 985
 642 598 173
 
+this week:
 060 104 050
 200 000 001
 008 305 600
@@ -64,20 +65,86 @@
 007 206 900
 		</pre>
   </p>
-  <pre class="prettyprint linenums" id="snippet-heroku"></pre>
 </div>
 <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css" rel="stylesheet" media="screen"/>
 <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap-responsive.css" rel="stylesheet" media="screen"/>
 <link href="http://getbootstrap.com/2.3.2/assets/js/google-code-prettify/prettify.css" rel="stylesheet" media="screen"/>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript" src="http://getbootstrap.com/2.3.2/assets/js/google-code-prettify/prettify.js"></script>
-<script type="text/javascript" id="heroku">
+<style>
+code + span:before {
+	content: ': ';
+}
+</style>
+<script type="text/javascript" id="heroku-rotate">
+// the static rule of Sudoku number length
+var length = 9;
+// input includes 9x2 length
+// so we have last week and this week results
+var rows = ["963174258", "178325649", "254689731", "821437596", "496852317", "735961824", "589713462", "317246985", "642598173", "060104050", "200000001", "008305600", "800407006", "006000300", "700901004", "500000002", "040508070", "007206900"];
+// slice rows for last week results
+var rowslast = rows.slice(0, length)
+// slice rows for this week results
+var rowstoday = rows.slice(length, length*2);
+// for clocwise/counter clowise 2
+// rows for this week results are reversed
+var rowstoday_reversed = [].concat(rowstoday);
+rowstoday_reversed.reverse();
+
+// predefine arrays for columns population
+for(var i = 0, columnstoday = new Array(length), columnslast = new Array(length), columnstoday_reversed; i < rows.length / 2; i++) {
+  // go trough each row and pick up a number in order of index
+  for(var j = 0; j < length; j++) {
+    if(columnstoday[i] == null) columnstoday[i] = '';
+    columnstoday[i] += rowstoday[j][i];
+
+    if(columnslast[i] == null) columnslast[i] = '';
+    columnslast[i] += rowslast[j][i];
+  }
+}
+
+// for clockwise 1, or counter clockwise 3
+// columns for this week results are reversed
+columnstoday_reversed = [].concat(columnstoday);
+columnstoday_reversed.reverse();
+
+// taken from: http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
+function compare(arr1, arr2) {
+    // if the other array is a falsy value, return
+    if (!arr1 || !arr2)
+        return false;
+
+    // compare lengths - can save a lot of time
+    if (arr1.length != arr2.length)
+        return false;
+
+    for (var i = 0; i < arr1.length; i++) {
+        // Check if we have nested arrays
+        if (arr1[i] instanceof Array && arr2[i] instanceof Array) {
+            // recurse into the nested arrays
+            if (!compare(arr1[i], arr2[i]))
+                return false;
+        }
+        else if (arr1[i] != arr2[i]) {
+            // Warning - two different object instances will never be equal: {x:20} != {x:20}
+            return false;
+        }
+    }
+    return true;
+}
+
 </script>
 <script id="control">
 $(function() { window.prettyPrint && prettyPrint(); });
 $('script[id]:not([id="control"])').each(function () {
   $('#snippet-' + $(this).attr('id')).append($(this).text());
 });
-//$("#a").parent().append(phonelist(a));
+$("<span></span>").text(compare(rowstoday, rowslast)).insertAfter($("span:contains('1.1')").next());
+
+$("<span></span>").text(compare(columnstoday_reversed, columnslast)).insertAfter($("span:contains('1.2')").next());
+
+$("<span></span>").text(compare(rowstoday_reversed, rowslast)).insertAfter($("span:contains('1.3')").next());
+
+$("<span></span>").text(compare(columnstoday, columnslast)).insertAfter($("span:contains('1.4')").next());
 </script>
 </body></html>
