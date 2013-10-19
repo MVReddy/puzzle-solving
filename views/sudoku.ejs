@@ -2,26 +2,27 @@
 </head><body>
 <div class="container">
 <h1>Sudoku</h1>
+<p>Learning case: to consider String comparison for optimization</p>
 <p>1. Rotate:</p>
 <p>
 <span>1.1</span> original: <code>compare(rowstoday, rowslast)</code><br/>
-<span>1.2</span> clockwise 1: <code>compare(columnstoday_reversed, columnslast)</code><br/>
-<span>1.3</span> clockwise 2: <code>compare(rowstoday_reversed, rowslast)</code><br/>
+<span>1.2</span> clockwise 1: <code>compare(columnstoday, columnslast_reversed)</code><br/>
+<span>1.3</span> clockwise 2: <code>compare(rowstoday, rowslast_reversed)</code><br/>
 <span>1.4</span> clockwise 3: <code>compare(columnstoday, columnslast)</code>
 </p>
 <pre class="prettyprint linenums" id="snippet-sudoku-rotate"></pre>
 <p>Brainstorming</p>
-<p>2. columns in segment 4x3=12<br/>
-<code>swapcompare(rowstoday, rowslast)</code><br/>
-<code>swapcompare(rowstoday_reversed, rowslast)</code><br/>
-<code>swapcompare(columnstoday, columnslast)</code><br/>
-<code>swapcompare(columnstoday_reversed, columnslast)</code>
+<p>2. columns in segment (3x3)x6=36<br/>
+<span>2.1</span> clockwise 1: <code>swapindexes(columnslast, function(a) { return compare(a, columnstoday); })</code><br/>
+<span>2.2</span> clockwise 3: <code>swapindexes(columnslast_reversed, function(a) { return compare(a, columnstoday); })</code><br/>
 <ul>
 <li>iterate over every 3 row segment up to 3:<br/>
   shuffle (6), compare every shuffle</li>
 </ul>
 </p>
-<p>3. rows in segment 4x3=12
+<p>3. rows in segment (3x3)x6=36<br/>
+<span>3.1</span> original: <code>swapindexes(rowslast, function(a) { return compare(a, rowstoday); })</code><br/>
+<span>3.2</span> clockwise 2: <code>swapindexes(rowslast_reversed, function(a) { return compare(a, rowstoday); })</code><br/>
 <ul>
 <li>iterate over every 3 column segment up to 3:<br/>
   shuffle (6), compare every shuffle</li>
@@ -37,7 +38,7 @@
   shuffle (6), compare every shuffle</li>
 </ul>
 </p>
-<p>5. ?</p>
+<p>5. ?- unclear </p>
 
 <p>Sudoku preview sketch</p>
 <pre>
@@ -90,9 +91,9 @@ var rowslast = rows.slice(0, length)
 // slice rows for this week results
 var rowstoday = rows.slice(length, length*2);
 // for clocwise/counter clowise 2
-// rows for this week results are reversed
-var rowstoday_reversed = [].concat(rowstoday);
-rowstoday_reversed.reverse();
+// rows for last week results are reversed
+var rowslast_reversed = [].concat(rowslast);
+rowslast_reversed.reverse();
 
 // predefine arrays for columns population
 for(var i = 0, columnstoday = new Array(length), columnslast = new Array(length), columnstoday_reversed; i < rows.length / 2; i++) {
@@ -107,66 +108,65 @@ for(var i = 0, columnstoday = new Array(length), columnslast = new Array(length)
 }
 
 // for clockwise 1, or counter clockwise 3
-// columns for this week results are reversed
-columnstoday_reversed = [].concat(columnstoday);
-columnstoday_reversed.reverse();
+// columns for last week results are reversed
+columnslast_reversed = [].concat(columnslast);
+columnslast_reversed.reverse();
 
 // taken from: http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
 function compare(arr1, arr2) {
-    // if the other array is a falsy value, return
-    if (!arr1 || !arr2)
-        return false;
+  // if the other array is a falsy value, return
+  if (!arr1 || !arr2)
+    return false;
 
-    // compare lengths - can save a lot of time
-    if (arr1.length != arr2.length)
-        return false;
+  // compare lengths - can save a lot of time
+  if (arr1.length != arr2.length)
+    return false;
 
-    for (var i = 0; i < arr1.length; i++) {
-        // Check if we have nested arrays
-        if (arr1[i] instanceof Array && arr2[i] instanceof Array) {
-            // recurse into the nested arrays
-            if (!compare(arr1[i], arr2[i]))
-                return false;
-        }
-        else if (arr1[i] != arr2[i]) {
-            // Warning - two different object instances will never be equal: {x:20} != {x:20}
-            return false;
-        }
+  for (var i = 0; i < arr1.length; i++) {
+    // Check if we have nested arrays
+    if (arr1[i] instanceof Array && arr2[i] instanceof Array) {
+      // recurse into the nested arrays
+      if (!compare(arr1[i], arr2[i]))
+          return false;
     }
-    return true;
+    else if (arr1[i] != arr2[i]) {
+      // Warning - two different object instances will never be equal: {x:20} != {x:20}
+      return false;
+    }
+  }
+  return true;
 }
 
 </script>
 <script id="sudoku-swaps">
-function swapcompare(today, last) {
-  var _compare = function(a) {
-    // compare swapped array with last weeke results
-    return compare(a, today);
-  }
-  //swapindexes(last);
-}
-
-//rowslast or columnslast
-function swapindexes(indexes, i) {
-  for(var i = i || 3, a = [].concat(indexes); i < indexes.length + 1; i+=3) {
+// rowslast or columnslast
+// assuming that the arrays are not equal already
+// we skip the initial check and go to shuffling
+function swapindexes(indexes, _compare, i) {
+  // make 3 steps
+  for(var i = i || 3; i < indexes.length + 1; i+=3) {
     // reset the array
-    // a = [].concat(indexes);
+    a = [].concat(indexes);
 
     // swap second and last indexes
     a = a.insert(i, a[i-2]);
     a.splice(i-2, 1);
-    // if(_compare(a) == true ||
-    // swapindexes(a, i+3) == true)
-    // return true
+
+    // check and compare variations
+    if(_compare(a) == true ||
+       swapindexes(a, _compare, i+3) == true)
+       return true
 
     // swap first and last
     // swap first and second indexes
     for(var j = 0; j < 2; j++) {
       a = a.insert(i, a[i-3]);
       a.splice(i-3, 1);
-      // if(_compare(a) == true ||
-      // swapindexes(a, i+3) == true)
-      // return true
+      
+      // check and compare variations
+      if(_compare(a) == true ||
+        swapindexes(a, _compare, i+3) == true)
+        return true
     }
 
     // .. variation with 
@@ -178,7 +178,19 @@ function swapindexes(indexes, i) {
 
   return false;
 }
-// we need a help function to manupulate the positions
+
+// todo change args to function(i, j) { return [(3-2)*3, (3-2)*3+1, (3-2)*3+2] }
+// a slice using indexes
+// 2<=>3: swap(a, 3, 2, a[(3-2)*3], a[(3-2)*3+1], a[(3-2)*3+2]) 
+// 1<=>3: swap(a, 3, 3, a[(3-3)*3], a[(3-3)*3+1], a[(3-3)*3+2]) 
+function swap(a, i, j/*, arguments*/) {
+  //thanksto http://debuggable.com/posts/turning-javascript-s-arguments-object-into-an-array:4ac50ef8-3bd0-4a2d-8c2e-535ccbdd56cb
+  var args = Array.prototype.slice.call(arguments).slice(3);
+  a = a.insert.apply(a, [i*args.length].concat(args));
+  a.splice((i-j)*args.length, args.length);
+}
+
+// we need a helper function to manupulate the positions
 Array.prototype.insert = function(index) {
   this.splice.apply(this, [index, 0].concat(
     Array.prototype.slice.call(arguments, 1)));
@@ -190,12 +202,22 @@ $(function() { window.prettyPrint && prettyPrint(); });
 $('script[id]:not([id="control"])').each(function () {
   $('#snippet-' + $(this).attr('id')).append($(this).text());
 });
+
 $("<span></span>").text(compare(rowstoday, rowslast)).insertAfter($("span:contains('1.1')").next());
 
-$("<span></span>").text(compare(columnstoday_reversed, columnslast)).insertAfter($("span:contains('1.2')").next());
+$("<span></span>").text(compare(columnstoday, columnslast_reversed)).insertAfter($("span:contains('1.2')").next());
 
-$("<span></span>").text(compare(rowstoday_reversed, rowslast)).insertAfter($("span:contains('1.3')").next());
+$("<span></span>").text(compare(rowstoday, rowslast_reversed)).insertAfter($("span:contains('1.3')").next());
 
 $("<span></span>").text(compare(columnstoday, columnslast)).insertAfter($("span:contains('1.4')").next());
+
+$("<span></span>").text(swapindexes(columnslast, function(a) { return compare(columnstoday, a); })).insertAfter($("span:contains('2.1')").next());
+
+$("<span></span>").text(swapindexes(columnslast_reversed, function(a) { return compare(columnstoday, a); })).insertAfter($("span:contains('2.2')").next());
+
+$("<span></span>").text(swapindexes(rowslast, function(a) { return compare(rowstoday, a); })).insertAfter($("span:contains('3.1')").next());
+
+$("<span></span>").text(swapindexes(rowslast_reversed, function(a) { return compare(rowstoday, a); })).insertAfter($("span:contains('3.2')").next());
+
 </script>
 </body></html>
