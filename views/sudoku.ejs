@@ -2,7 +2,11 @@
 </head><body>
 <div class="container">
 <h1>Sudoku</h1>
-<p>Learning case: to consider String comparison for optimization</p>
+<p>Learning cases</p>
+<ul>
+<li>to consider String comparison for optimization</li>
+<li>When code has to follow Math expressions, scripting languages are the best to describe</li>
+</ul>
 <p>1. Rotate:</p>
 <p>
 <span>1.1</span> original: <code>compare(rowstoday, rowslast)</code><br/>
@@ -10,33 +14,27 @@
 <span>1.3</span> clockwise 2: <code>compare(rowstoday, rowslast_reversed)</code><br/>
 <span>1.4</span> clockwise 3: <code>compare(columnstoday, columnslast)</code>
 </p>
-<pre class="prettyprint linenums" id="snippet-sudoku-rotate"></pre>
-<p>Brainstorming</p>
-<p>2. columns in segment (3x3)x6=36<br/>
-<span>2.1</span> clockwise 1: <code>swapindexes(columnslast, function(a) { return compare(a, columnstoday); })</code><br/>
-<span>2.2</span> clockwise 3: <code>swapindexes(columnslast_reversed, function(a) { return compare(a, columnstoday); })</code><br/>
-<ul>
-<li>iterate over every 3 row segment up to 3:<br/>
-  shuffle (6), compare every shuffle</li>
-</ul>
+<pre class="prettyprint linenums" id="snippet-rotate"></pre>
+<p>2. Columns in segment (total=252 variations per column set, no repeats)<br/>
+It is not clear whether one or more segments have to have 2 columns swapped. <br/>
+Not said which columns to swap, then it will be 3 variations + original within one segment.<br/></p>
+<p><span>2.1</span> clockwise 1: <code>swapindexes(columnslast, function(a) { return compare(a, columnstoday); })</code><br/>
 </p>
-<p>3. rows in segment (3x3)x6=36<br/>
-<span>3.1</span> original: <code>swapindexes(rowslast, function(a) { return compare(a, rowstoday); })</code><br/>
-<span>3.2</span> clockwise 2: <code>swapindexes(rowslast_reversed, function(a) { return compare(a, rowstoday); })</code><br/>
-<ul>
-<li>iterate over every 3 column segment up to 3:<br/>
-  shuffle (6), compare every shuffle</li>
-</ul>
+<p>What about columns being rotated?<br/>
+<span>2.2</span> clockwise 3: <code>swapindexes(columnslast_reversed, function(a) { return compare(a, columnstoday); })</code>
 </p>
-<pre class="prettyprint linenums" id="snippet-sudoku-swaps"></pre>
-<p>
-4. row or column 6x2=12
-<ul>
-<li>iterate over group of 3 columns:
-  shuffle (6), compare every shuffle</li>
-<li>iterate over group of 3 rows:
-  shuffle (6), compare every shuffle</li>
-</ul>
+<p>3. Rows in segment (total=252 variations per rows set, no repeats)<br/>
+It is not clear whether one or more segments have to have 2 rows swapped. <br/>
+Not said which rows to swap, then it will be 3 variations + original within one segment.</p>
+<p><span>3.1</span> original: <code>swapindexes(rowslast, function(a) { return compare(a, rowstoday); })</code></p>
+<p>What about columns being rotated?<br/>
+<span>3.2</span> clockwise 2: <code>swapindexes(rowslast_reversed, function(a) { return compare(a, rowstoday); })</code>
+</p>
+<pre class="prettyprint linenums" id="snippet-swaps"></pre>
+<p>4. row or column 6x2=12</p>
+<p><span>4.1</span> original, row segment <code>compareSet(rowstoday, rowslast)</code><br/>
+<span>4.2</span> clockwise 3, column segment <code>compareSet(columnstoday, columnslast)</code></p>
+<pre class="prettyprint linenums" id="snippet-swap-segments"></pre>
 </p>
 <p>5. ?- unclear </p>
 
@@ -80,7 +78,7 @@ code + span:before {
   content: ': ';
 }
 </style>
-<script type="text/javascript" id="sudoku-rotate">
+<script type="text/javascript" id="rotate">
 // the static rule of Sudoku number length
 var length = 9;
 // input includes 9x2 length
@@ -138,7 +136,7 @@ function compare(arr1, arr2) {
 }
 
 </script>
-<script id="sudoku-swaps">
+<script id="swaps">
 // rowslast or columnslast
 // assuming that the arrays are not equal already
 // we skip the initial check and go to shuffling
@@ -148,7 +146,7 @@ function swapindexes(indexes, _compare, i) {
     // reset the array
     a = [].concat(indexes);
 
-    // swap second and last indexes
+    // swap 2nd and 3d indexes
     a = a.insert(i, a[i-2]);
     a.splice(i-2, 1);
 
@@ -157,8 +155,8 @@ function swapindexes(indexes, _compare, i) {
        swapindexes(a, _compare, i+3) == true)
        return true
 
-    // swap first and last
-    // swap first and second indexes
+    // swap 1st and 3d indexes
+    // swap 1st and 2nd indexes
     for(var j = 0; j < 2; j++) {
       a = a.insert(i, a[i-3]);
       a.splice(i-3, 1);
@@ -179,23 +177,42 @@ function swapindexes(indexes, _compare, i) {
   return false;
 }
 
-// todo change args to function(i, j) { return [(3-2)*3, (3-2)*3+1, (3-2)*3+2] }
-// a slice using indexes
-// 2<=>3: swap(a, 3, 2, a[(3-2)*3], a[(3-2)*3+1], a[(3-2)*3+2]) 
-// 1<=>3: swap(a, 3, 3, a[(3-3)*3], a[(3-3)*3+1], a[(3-3)*3+2]) 
-function swap(a, i, j/*, arguments*/) {
-  //thanksto http://debuggable.com/posts/turning-javascript-s-arguments-object-into-an-array:4ac50ef8-3bd0-4a2d-8c2e-535ccbdd56cb
-  var args = Array.prototype.slice.call(arguments).slice(3);
-  a = a.insert.apply(a, [i*args.length].concat(args));
-  a.splice((i-j)*args.length, args.length);
-}
-
 // we need a helper function to manupulate the positions
 Array.prototype.insert = function(index) {
   this.splice.apply(this, [index, 0].concat(
     Array.prototype.slice.call(arguments, 1)));
   return this;
 };
+</script>
+<script id="swap-segments">
+// derived and unified from earlier example
+function swap(a, i, j, f) {
+  var args = f(i, j);
+  a = a.insert.apply(a, [i*i].concat(a.slice.apply(a, args)));
+  a.splice((i-j)*i, i);
+}
+
+function compareSet(today, last) {
+  // let's define a function for picking up the indexes
+  var f = function(i, j) { 
+    // 2 values max: start index, end index
+    return [(i-j)*i, (i-j)*i+3]; 
+  };
+
+  last = [].concat(last);
+  // swap 2nd and 3d segments
+  swap(last, 3, 2, f);
+  if(compare(today, last) == true) return true;
+
+  // swap 1st and 3d segments
+  // swap 1st and 2nd segments
+  for(var j = 0; j < 2; j++) {
+    swap(last, 3, 3, f);
+    if(compare(today, last) == true) return true;
+  }
+
+  return false;
+}
 </script>
 <script id="control">
 $(function() { window.prettyPrint && prettyPrint(); });
@@ -218,6 +235,10 @@ $("<span></span>").text(swapindexes(columnslast_reversed, function(a) { return c
 $("<span></span>").text(swapindexes(rowslast, function(a) { return compare(rowstoday, a); })).insertAfter($("span:contains('3.1')").next());
 
 $("<span></span>").text(swapindexes(rowslast_reversed, function(a) { return compare(rowstoday, a); })).insertAfter($("span:contains('3.2')").next());
+
+$("<span></span>").text(compareSet(rowstoday, rowslast)).insertAfter($("span:contains('4.1')").next());
+
+$("<span></span>").text(compareSet(columnstoday, columnslast)).insertAfter($("span:contains('4.2')").next());
 
 </script>
 </body></html>
