@@ -4,7 +4,7 @@
 <h1>Sudoku</h1>
 <p>Learning cases</p>
 <ul>
-<li>to consider String comparison for optimization</li>
+<li>Use String comparison in order to optimize execution time</li>
 <li>When code has to follow Math expressions, scripting languages are the best to describe</li>
 </ul>
 <p>1. Rotate:</p>
@@ -37,36 +37,8 @@ Not said which rows to swap, then it will be 3 variations + original within one 
 <pre class="prettyprint linenums" id="snippet-swap-segments"></pre>
 </p>
 <p>5. ?- unclear </p>
-
-<p>Sudoku preview sketch</p>
-<pre>
-last week:
-963 174 258
-178 325 649
-254 689 731
-
-821 437 596
-496 852 317
-735 961 824
-
-589 713 462
-317 246 985
-642 598 173
-
-this week:
-060 104 050
-200 000 001
-008 305 600
-
-800 407 006
-006 000 300
-700 901 004
-
-500 000 002
-040 508 070
-007 206 900
-    </pre>
-  </p>
+<p>Also code is here: <a href="/sudoku.py" class="btn">Python sudoku.py</a></p>
+<p>Check full source code in <a href="https://github.com/slavkur/puzzle-solving">github</a></p>
 </div>
 <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css" rel="stylesheet" media="screen"/>
 <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap-responsive.css" rel="stylesheet" media="screen"/>
@@ -74,6 +46,9 @@ this week:
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript" src="http://getbootstrap.com/2.3.2/assets/js/google-code-prettify/prettify.js"></script>
 <style>
+code + span {
+  font-weight: bold;
+}
 code + span:before {
   content: ': ';
 }
@@ -110,29 +85,8 @@ for(var i = 0, columnstoday = new Array(length), columnslast = new Array(length)
 columnslast_reversed = [].concat(columnslast);
 columnslast_reversed.reverse();
 
-// taken from: http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
-function compare(arr1, arr2) {
-  // if the other array is a falsy value, return
-  if (!arr1 || !arr2)
-    return false;
-
-  // compare lengths - can save a lot of time
-  if (arr1.length != arr2.length)
-    return false;
-
-  for (var i = 0; i < arr1.length; i++) {
-    // Check if we have nested arrays
-    if (arr1[i] instanceof Array && arr2[i] instanceof Array) {
-      // recurse into the nested arrays
-      if (!compare(arr1[i], arr2[i]))
-          return false;
-    }
-    else if (arr1[i] != arr2[i]) {
-      // Warning - two different object instances will never be equal: {x:20} != {x:20}
-      return false;
-    }
-  }
-  return true;
+function compare(today, last) {
+  return new RegExp(today.join('').replace(/0/g, '\\d')).test(last.join(''));
 }
 
 </script>
@@ -142,29 +96,31 @@ function compare(arr1, arr2) {
 // we skip the initial check and go to shuffling
 function swapindexes(indexes, _compare, i) {
   // make 3 steps
-  for(var i = i || 3; i < indexes.length + 1; i+=3) {
+  for(var i = i || 3, a; i < indexes.length + 1; i+=3) {
     // reset the array
     a = [].concat(indexes);
 
-    // swap 2nd and 3d indexes
-    a = a.insert(i, a[i-2]);
-    a.splice(i-2, 1);
-
-    // check and compare variations
-    if(_compare(a) == true ||
-       swapindexes(a, _compare, i+3) == true)
-       return true
-
-    // swap 1st and 3d indexes
-    // swap 1st and 2nd indexes
     for(var j = 0; j < 2; j++) {
-      a = a.insert(i, a[i-3]);
-      a.splice(i-3, 1);
-      
+      // swap 2nd and 3d indexes
+      a = a.insert(i, a[i-2]);
+      a.splice(i-2, 1);
+
       // check and compare variations
       if(_compare(a) == true ||
-        swapindexes(a, _compare, i+3) == true)
-        return true
+         swapindexes(a, _compare, i+3) == true)
+         return true
+
+      // swap 1st and 3d indexes
+      // swap 1st and 2nd indexes
+      for(var j = 0; j < 2; j++) {
+        a = a.insert(i, a[i-3]);
+        a.splice(i-3, 1);
+        
+        // check and compare variations
+        if(_compare(a) == true ||
+          swapindexes(a, _compare, i+3) == true)
+          return true
+      }
     }
 
     // .. variation with 
@@ -187,8 +143,7 @@ Array.prototype.insert = function(index) {
 <script id="swap-segments">
 // derived and unified from earlier example
 function swap(a, i, j, f) {
-  var args = f(i, j);
-  a = a.insert.apply(a, [i*i].concat(a.slice.apply(a, args)));
+  a = a.concat(a.slice.apply(a, f(i, j)));
   a.splice((i-j)*i, i);
 }
 
@@ -198,17 +153,19 @@ function compareSet(today, last) {
     // 2 values max: start index, end index
     return [(i-j)*i, (i-j)*i+3]; 
   };
-
-  last = [].concat(last);
-  // swap 2nd and 3d segments
-  swap(last, 3, 2, f);
-  if(compare(today, last) == true) return true;
-
-  // swap 1st and 3d segments
-  // swap 1st and 2nd segments
+  var a = [].concat(last);
+  
   for(var j = 0; j < 2; j++) {
-    swap(last, 3, 3, f);
-    if(compare(today, last) == true) return true;
+    // swap 2nd and 3d segments
+    swap(a, 3, 2, f);
+    if(compare(today, a) == true) return true;
+
+    // swap 1st and 3d segments
+    // swap 1st and 2nd segments
+    for(var k = 0; k < 2; k++) {
+      swap(a, 3, 3, f);
+      if(compare(today, a) == true) return true;
+    }
   }
 
   return false;

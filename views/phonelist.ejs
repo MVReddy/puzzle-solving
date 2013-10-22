@@ -4,10 +4,10 @@
 <div class="container">
   <h1>Phone list</h1>
   <p>Simple JavaScript integration</p>
-  <p><code id="a">phonelist(a)</code>: <p>
-  <p><code id="b">phonelist(b)</code>: <p>
-  <pre class="prettyprint linenums" id="snippet-phonebook"></pre>
-  <p>Also Java code is here <a href="/phonelist.tar.gz" class="btn">phonelist.tar.gz</a></p>
+  <p><code id="a">phonelist(a)</code><p>
+  <p><code id="b">phonelist(b)</code><p>
+  <pre class="prettyprint linenums" id="snippet-phonelist"></pre>
+  <p>Also code is here: <a href="/phonelist.tar.gz" class="btn">Java phonelist.tar.gz</a> <a href="/phonelist.py" class="btn">Python phonelist.py</a></p>
   <p>Check full source code in <a href="https://github.com/slavkur/puzzle-solving">github</a></p>
 </div>
 <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css" rel="stylesheet" media="screen"/>
@@ -15,7 +15,15 @@
 <link href="http://getbootstrap.com/2.3.2/assets/js/google-code-prettify/prettify.css" rel="stylesheet" media="screen"/>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript" src="http://getbootstrap.com/2.3.2/assets/js/google-code-prettify/prettify.js"></script>
-<script type="text/javascript" id="phonebook">
+<style>
+code + span {
+  font-weight: bold;
+}
+code + span:before {
+  content: ': ';
+}
+</style>
+<script type="text/javascript" id="phonelist">
 // bad list
 var a = [911,
   97625999,
@@ -52,7 +60,7 @@ $(function() { window.prettyPrint && prettyPrint(); });
 $('script[id]:not([id="control"])').each(function () {
   $('#snippet-' + $(this).attr('id')).append($(this).text());
 });
-$("#a").parent().append(phonelist(a));
-$("#b").parent().append(phonelist(b));
+$("#a").parent().append($("<span></span>").text(phonelist(a)));
+$("#b").parent().append($("<span></span>").text(phonelist(b)));
 </script>
 </body></html>
